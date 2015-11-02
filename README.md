@@ -11,14 +11,13 @@ heidi.lischer@ieu.uzh.ch
 
 ## Frequently used bioinformatics utilities
 
-For many tasks we regularly do in bioinformatics handy tools already exist. By combining them we can achieve many things.
-Of course we could code their functionality ourself but it's usually better to use exisiting tools as
+For many tasks we regularly do in bioinformatics software/utilities already exist. We could also try to code their functionality ourself but it's usually better to use exisiting tools as
 a) these tools have more users and therefore bugs are more likely to be identified and b) they are usually optimized and fast. 
   
-Many things you could also achieve using R or python. But the power of these command-line tools lies in combining them with Linux/Unix tools.
+Here we concentrate on command-line utilities although we could also achieve most tasks using R or python with specialized packages/libraries. The advantage of command-line tools is that they are easy to learn and use as they use simple text formats. And their power lies in combining multiple operations on the  with Linux/Unix command line.
   
 **A word of caution**  
-Never trust software - Do sanity checks often!
+Never trust software blindly - Do sanity checks often!
 
 
 ![Tools](Tools.png)
@@ -29,17 +28,22 @@ Never trust software - Do sanity checks often!
 2. Picard  
 **Genomic Intervals (bed, gtf, gff)**  
 3. bedtools  
+**FASTA/FASTQ**   
+4. seqtk
 **Variants (vcf)**  
-4. vcftools  
-5. bcftools  
-6. Picard  
+5. vcftools  
+6. bcftools  
+7. Picard  
   
   
 Chapters 1-3 Stefan  
-Chapters 4-5 Heidi
+Chapters 4-6 Heidi [Presentation](URPP_Tutorial_NGStools_HL.pdf) | [Exercises](Exercises_NGStools_Tutorial_HL.pdf) | [Data](NGStools_HL.zip)
 
 
-### Installation
+##Installation
+
+
+### Linux
 
 Under Ubuntu installation is simple
 
@@ -47,35 +51,65 @@ Under Ubuntu installation is simple
 sudo apt-get install samtools bedtools vcftools picard-tools igv
 ```
 
-Under Mac OS check `homebrew` or your favourite package manager.
-
-
 Note that package managers often do not install the latest software versions. If you regularly use a tool it is a good idea to suscribe to its mailing list or to check its website from time to time.
 
+#### Installing latest versions
+
 ```
-sudo ln -s -t /usr/bin/ ~/software/BEDTOOLS/bedtools2.25.0/bin/bedtools
+wget https://github.com/samtools/samtools/releases/download/1.2/samtools-1.2.tar.bz2
+bunzip2 samtools-1.2.tar.bz2 
+tar xf samtools-1.2.tar
+cd samtools-1.2
+make
+sudo make install
+
+wget https://github.com/arq5x/bedtools2/releases/download/v2.25.0/bedtools-2.25.0.tar.gz
+tar zxf bedtools-2.25.0.tar.gz
+cd bedtools-2
+make
+sudo make install
+
+wget https://github.com/broadinstitute/picard/releases/download/1.140/picard-tools-1.140.zip
+unzip picard-tools-1.140.zip 
 ```
+
+### Mac OS
+
+Under Mac OS use `homebrew` or your favourite package manager.
+Alternatively install [VirtualBox](www.virtualbox.org) and import the provided Virtual Machine containing Ubuntu.
+
+### Windows
+
+Install [VirtualBox](www.virtualbox.org) and import the provided Virtual Machine containing Ubuntu.
+
+
+### Data
+
+Download the data. It is from a resequencing project of the *E.coli* DH10B strain and contains genome sequence, gene annotation (in gff format) and repeat annotation (in bed format).
+
+```
+wget 
+```
+
 
 ## SAM/BAM files
 
-The Sequence Alignment/Mapping (SAM) format for mapping data (and its binary equivalent, BAM). The SAM/BAM formats are the standard formats for 
-storing sequencing read mapped to a reference. Unlike more general formats like BED and GTF/GFF, SAM/BAM are designed specifically for storing 
-the position reads align to and other information about the alignment. Importantly, SAM/BAM do **not** contain the reference sequence.
+The SAM/BAM formats are the standard formats for storing sequencing read mapped to a reference. SAM stands for **S**equence **A**lignment/**M**apping (SAM) and BAM is its binary equivalent. Unlike more general formats like BED and GTF/GFF, SAM/BAM are designed specifically for storing the position reads align to and other information about the alignment. Importantly, SAM/BAM do **not** contain the reference sequence.
 
-A SAM/BAM file consists of a header and an alignment section. The detailed SAM/BAM file specifications are available [http://samtools.github.io/hts-specs/]here.
+A SAM/BAM file consists of a header and an alignment section. The detailed SAM/BAM file specifications are available [here](http://samtools.github.io/hts-specs/).
 
 
 ### samtools
 
 [samtools](http://www.htslib.org/) are part of almost every NGS workflow. Samtools is a set of utilities that manipulate alignments in 
-the BAM format. It imports from and exports to the SAM (Sequence Alignment/Map) format, does sorting, merging and indexing, and allows to 
+the BAM format. It imports from and exports to the SAM format, does sorting, merging and indexing, and allows to 
 retrieve reads in any regions swiftly.
 
-Here we use version 1.2. Check your version by typing `samtools` in the command line. Package managers usually install 0.1.18. You can do the 
+Here we use version 1.2. Check your version by typing `samtools` in the command line. Package managers usually install an earlier version (e.g. 0.1.18). You can do the 
 exercises with an older version, but older versions require some flags that are now unnecessary, like `-S` with `samtools view` to specify input 
 is a SAM file (now filetype is autodetected).
 
-The full options are available [here](http://www.htslib.org/doc/samtools.html).
+You can get help by typing `samtools` or `man samtools`. The manual is available [here](http://www.htslib.org/doc/samtools.html)  
 
 ```
 samtools 
@@ -116,15 +150,12 @@ Commands:
          view        SAM<->BAM<->CRAM conversion
 ```
 
-Help for individual task is available by typing `samtools COMMAND`, e.g. `samtools view`
+Usage information for individual task is available by typing `samtools COMMAND`, e.g. `samtools view`
 
-
-Indexes BAM file for fast access.
-This index is needed when region arguments are used to limit samtools view and similar commands to particular regions of interest
 
 ***Limitations***   
 Samtools paired-end `rmdup` does not work for unpaired reads (e.g. orphan reads or ends mapped to different chromosomes). If this is a concern, 
-please use Picard's MarkDuplicates which correctly handles these cases
+please use Picard's MarkDuplicates which correctly handles these cases.
 
 A faster and multithreaded alternative to `samtools` is [sambamba](http://lomereiter.github.io/sambamba/)
 
@@ -132,9 +163,9 @@ A faster and multithreaded alternative to `samtools` is [sambamba](http://lomere
 
 ### Picard
 
-[Picard](http://broadinstitute.github.io/picard/) is another set of tools to work with SAM/BAM files developed in the Broad institute by the same people who develop the GATK (Genome Analysis Toolkit) variant calling pipeline.
+[Picard](http://broadinstitute.github.io/picard/) is another set of tools to work with SAM/BAM files.
 
-You have to use Picard before running GATK for variant calling. Notably, Picard provides **BAM file preprocessing** which often improves SNP calling accuracy (See GATK best practices). 
+If you want to do variant calling using the GATK (Genome Analysis Toolkit) pipeline you have to use Picard. Notably, Picard provides **BAM file preprocessing** which often improves SNP calling accuracy (See GATK best practices). 
 
 However, Picard tools are also interesting for getting information on BAM files if you use a different variant caller.
 
@@ -145,40 +176,41 @@ java -Xmx2g -jar picard.jar COMMAND OPTION1=value1 OPTION2=value2...
 ```
 
 
+
 You can get a list of Picard commands by doing
 
 ```
-java -jar software/PICARD/picard-tools-1.140/picard.jar
+java -jar software/picard-tools-1.140/picard.jar
 ```
 
-and help on individual commands e.g. for Markduplicates by doing
+and help on individual commands e.g. for `Markduplicates` by doing
 
 ```
-java -jar software/PICARD/picard-tools-1.140/picard.jar MarkDuplicates -h
+java -jar software/picard-tools-1.140/picard.jar MarkDuplicates -h
 ```
 
-The documentation lists 58 Picard commands. It provides similar functionality as samtools to generate a BAM index (BuildBamIndex), view (ViewSam) or sort a SAM/BAM file (SortSam), mark PCR/optical duplicates (MarkDuplicates/MarkDuplicatesWithMateCigar), fix mate information (FixMateInformation), concatenates (GatherBamFiles), merges (MergeSamFiles), converts formats (SamFormatConverter).
+The documentation lists 58 Picard commands. It provides similar functionality as samtools to generate a BAM index (`BuildBamIndex`), view (`ViewSam`) or sort a SAM/BAM file (`SortSam`), mark PCR/optical duplicates (`MarkDuplicates`,`MarkDuplicatesWithMateCigar`), fix mate information (`FixMateInformation`), concatenates (`GatherBamFiles`), merges (`MergeSamFiles`), converts formats (`SamFormatConverter`).
 
-In addition, Picard has functionality for filtering (FilterSamReads), comparing (CompareSAMs) and downsampling (DownsampleSam) SAM/BAM files.
+In addition, Picard has functionality for filtering (`FilterSamReads`), comparing (`CompareSAMs`) and downsampling (`DownsampleSam`) SAM/BAM files.
 
-One of Picard's strength are the many command to generate quality reports (some also producing QC figures) like e.g. MeanQualityByCycle and QualityScoreDistribution. It also provides functions to do Quality control for amplicons or captured sequences.
+One of Picard's strength are the many command to generate quality reports (some also producing quality-control PDF figures) like e.g. `MeanQualityByCycle` and `QualityScoreDistribution`. It also provides functions to do quality control for amplicons or captured sequences.
 
-It provides also functions for working with fasta files (NormalizeFasta, ExtractSequences) or with vcf files (FilterVcf,MergeVcfs,SortVcf, LiftoverVcf,VcfFormatConverter,SplitVcfs,GenotypeConcordance,MakeSitesOnlyVcf).
+It provides also functions for working with fasta files (`NormalizeFasta`, `ExtractSequences`) or with vcf files (`FilterVcf`,`MergeVcfs`,`SortVcf`, `LiftoverVcf`,`VcfFormatConverter`,`SplitVcfs`,`GenotypeConcordance`,`MakeSitesOnlyVcf`).
 
 
 
 ### bedtools
 
-Many types of genomic data are linked to a specific genomic region and regions can be represented as a range
-of consecutive positions on a chromosome. Annotation data and genomic data like gene models, sequence variants 
+bedtools utilities are a swiss-army knife of tools for working with genomic ranges (also called genomic regions or intervals). Annotation data and genomic data like gene models, sequence variants 
 (SNPs), promoter regions, transposable elements, pairwise diversity and many others can all be representated 
 as genomic ranges. Also alignments of sequencing reads (e.g. from genome sequencing or RNA-Seq) can be representated as genomic ranges.
 
-Once our genomic data is represented as ranges on chromosomes, there are numerous range operations at our disposal to tackle tasks like finding and counting overlaps, cal‐ culating coverage, finding nearest ranges, and extracting nucleotide sequences from specific ranges.
-Specific problems like finding which SNPs overlap coding sequences, or counting the number of read alignments that overlap an exon have simple  
+Once our genomic data is represented as ranges on chromosomes, there are numerous range operations at our disposal to tackle tasks like finding and counting overlaps, calculating coverage, finding nearest ranges, and extracting nucleotide sequences from specific ranges.
+Specific problems like finding which SNPs overlap coding sequences, or counting the number of read alignments that overlap an exon have simple solutions. 
   
+bedtools allows one to intersect, merge, count, complement, annotate and shuffle genomic ranges from multiple files in widely used file formats suchs as BAM, BED, GFF/GTF, VCF. 
 
-bedtools help in format conversion, counting, filtering, annotating, comparing, ...
+You can get help by typing `bedtools` or from the excellent [online documentation ](http://bedtools.readthedocs.org/en/latest/) with many examples, tutorials etc.
 
 
 ```
@@ -204,6 +236,7 @@ The bedtools sub-commands include:
     random        Generate random intervals in a genome.
     shuffle       Randomly redistrubute intervals in a genome.
     sample        Sample random records from file using reservoir sampling.
+    spacing       Report the gap lengths between intervals in a file.
     annotate      Annotate coverage of features from multiple files.
 
 [ Multi-way file comparisons ]
@@ -233,6 +266,7 @@ The bedtools sub-commands include:
 [ Statistical relationships ]
     jaccard       Calculate the Jaccard statistic b/w two sets of intervals.
     reldist       Calculate the distribution of relative distances b/w two files.
+    fisher        Calculate Fisher statistic b/w two feature files.
 
 [ Miscellaneous tools ]
     overlap       Computes the amount of overlap from two intervals.
@@ -241,6 +275,7 @@ The bedtools sub-commands include:
     makewindows   Make interval "windows" across a genome.
     groupby       Group by common cols. & summarize oth. cols. (~ SQL "groupBy")
     expand        Replicate lines based on lists of values in columns.
+    split         Split a file into multiple files with equal records or base pairs.
 
 [ General help ]
     --help        Print this help menu.
@@ -248,50 +283,103 @@ The bedtools sub-commands include:
     --contact     Feature requests, bugs, mailing lists, etc.
 ```
 
+#### Some bedtools examples
+
+Feature files must be tab-delimited. Gzipped BED, GFF and VCF files are autodetected.
+
+- The `intersect` command reports all overlapping features between 2 genomic ranges (by default 1bp):  
 ```
-- ranges-qry.bed is a simple BED file containing six ranges. These are the query ranges used in the GenomicRanges findOverlaps examples (except, since these are in BED format, they are 0-indexed).
-- ranges-sbj.bed is the counterpart of ranges-sbj; these are the subject ranges used in theGenomicRangesfindOverlapsexamples. Bothranges-sbj.bedandranges- qry.bed are depicted in Figure 9-11 (though, this visualization uses 1-based coor‐ dinates).
-- Mus_musculus.GRCm38.75_chr1.gtf.gz are features on chromosome 1 of Mus_mus culus.GRCm38.75.gtf.gz. The latter file is Ensembl’s annotation file for mm10 (which is the same as GRCh38) and was downloaded from Ensembl’s FTP site (ftp:// ftp.ensembl.org/pub/release-75/gtf/mus_musculus).
-- Mus_musculus.GRCm38_genome.txt is a tab-delimited file of all chromosome names and lengths from the mm10/GRCm38 genome version.
+bedtools intersect -a Repeats_frep.bed -b EcoliDH10B_exons.gff
 ```
 
+The `a` file is the query file, where the `b` file is the database. Usually bedtools reports results together with the query `a` file.  
 
-### Other tools
+- How many base pairs of overlap were there?  
+```
+bedtools intersect -wo -a Repeats_frep.bed -b EcoliDH10B_exons.gff
+```
 
+- Counting the number of overapping features
+```
+bedtools intersect -c -a Repeats_frep.bed -b EcoliDH10B_exons.gff
+```
 
+- Report the original feature in each file
+```
+bedtools intersect -wa -wb -a Repeats_frep.bed -b EcoliDH10B_exons.gff
+```
+
+- Find entries in A that do NOT overlap with any entry in B. (like "grep -v")  
+```
+bedtools intersect -v -a Repeats_frep.bed -b EcoliDH10B_exons.gff
+```
+
+- Require a minimal fraction of overlap in A (>50% of A)
+```
+bedtools intersect -wo -f 0.50 -a Repeats_frep.bed -b EcoliDH10B_exons.gff
+```
+
+- Find closest repeat to each gene  
+```
+bedtools closest -a genes.gff -b Repeats_frep.bed
+```
+
+- Merge overlapping repetitive elements into a single entry 
+```
+bedtools merge -i Repeats_frep_sorted.bed 
+```
+
+- Calculate the GC content of each exon. How many E.coli exons have a GC-content of at least 60% ?  
+```
+bedtools nuc -fi URPP_Tutorials/EcoliDB10/EcoliDH10B.fa -bed EcoliDH10B_exons.gff | cut -f 1-5,10-18 | awk '$7 >= 0.60 {print}' | wc -l
+76
+```
+
+#### Tricks
+
+- All `bedtools` commands can read from stdin and write to stdout.
+
+- If you work with spliced BAM alignments (e.g. RNA-seq reads) use the `-split` option, otherwise `intersect`, `coverage` & `genomecov` will also count the intron portion of a read. 
+
+### Coordinate systems 
+
+Note that some formats are 0-based while others are 1-based which can lead to errors:
+
+0-based: BED BAM  
+1-based: VCF GFF  
+
+"If it doesn't have off-by-one errors, it isn't bioinformatics" Thomas Down
+
+See [explanation on Biostars](https://www.biostars.org/p/84686)
 
 
 ## Exercises
 
-You find the genome and BAM files on  
 
-
-#### 1. samtools
+### 1. samtools
 
 1. Make an index of the example BAM file  
 2. Check from header the number of chromosomes and their length  
 3. View the BAM file and check where in the genome the read _5:1:8:11124:15157 maps to  
-1. Extract all reads mapped to positions 99-110 (Can also be used to generate a BAM per chromosome)  
-1. Make an index of a reference fasta file   
-2. Extract nucleotide positions 99-110 from the reference genome  
-
-
-http://www.htslib.org/workflow/#mapping_to_variant
+4. Extract all reads mapped to positions 99-110 (Can also be used to generate a BAM per chromosome)  
+5. Make an index of the reference fasta file   
+6. Extract nucleotide positions 99-110 from the reference genome  
 
 
 
-#### 2. Sliding-window analysis
+### 2. Sliding-window analysis (bedtools)
 
-Sliding-window analysis is an often used simple approach to look at heterogeneity across the genome. Combined with different summary statistics/metrices
-it is used for many applications such as looking for regions under selection (Fst), recombination breakpoints, copy number variants.  
+Sliding-window analysis is an often used simple approach to look at heterogeneity across the genome. Combined with different summary statistics it is used e.g. to look for regions under selection (Fst), recombination breakpoints, copy number variants.  
 
-1. Define windows on genome
+1. Define 5kb windows on genome (Hint: have a look at the `makewindows` tool)
 2. Count number of reads per window
 3. Plot the coverage across the genome
 4. Calculate some metric/statistic
 5. Plot the metric/statistic across the genome
+6. (Advanced) Define smaller (e.g. 1kb) windows and compare the results
 
-#### 3. Identify low-coverage regions of an alignment
+
+### 3. Identify low-coverage regions of an alignment
 
 Due to technical bias and random sampling the read coverage varies across a genome. Often we have low-coverage regions
 with too few reads to call SNPs with confidence. Her we want to know for a example BAM how large these low-coverage regions are and what proportion of the genome they cover.
@@ -301,9 +389,9 @@ with too few reads to call SNPs with confidence. Her we want to know for a examp
 3. Merge consecutive positions
 4. Filter out very short regions
  
-### Sources
+## Sources
 
-- Respective documentations
+- Respective documentation of utility
 
 - [Vince Buffalo. Bioinformatics Data Skills. O'reilly 2015](http://shop.oreilly.com/product/0636920030157.do)  
   This practical book teaches the skills that scientists need for turning large sequencing datasets into reproducible and robust biological findings.
@@ -311,10 +399,10 @@ with too few reads to call SNPs with confidence. Her we want to know for a examp
 
 
 
-### Solutions
+## Solutions
 
 
-#### samtools
+### samtools
 
 1. Make an index of the example BAM file  
 ```
@@ -350,19 +438,19 @@ ATTAAAATTTTA
 ```
 
 
-#### 2. Sliding-window analysis
+### 2. Sliding-window analysis (bedtools)
 
 Sliding-window analysis is an often used simple approach to look at heterogeneity across the genome. Combined with different summary statistics/metrices
 it is used for many applications such as looking for regions under selection (Fst), recombination breakpoints, copy number variants.  
 
-1. Define windows on genome  
+1. Define 5kb windows on genome  
 ```
 more EcoliDH10B.fa.fai | cut -f1-2 > Chr_Length
 bedtools makewindows -g Chr_Length -w 5000  > SlidingWindows.bed
 ```
 2. Count number of reads per window  
 ```
-bedtools coverage -counts -abam MiSeq_Ecoli_DH10B_110721_PF_subsample.bam -b SlidingWindows.bed > Counts_SlidingWin5kb
+bedtools multicov -bams MiSeq_Ecoli_DH10B_110721_PF_subsample.bam -bed SlidingWindows.bed > Counts_SlidingWin5kb
 ```
 3. Plot the coverage across the genome  
 ```
@@ -373,7 +461,7 @@ colnames(counts.5kb) <- c("Chr", "Start", "End", "Coverage")
 4. Calculate some metric/statistic  
 5. Plot the metric/statistic across the genome  
 ```
-# We have to sort the file according start position
+# We have to sort the file according to the start position
 counts.5kb.sorted <- counts.5kb[order(decreasing=F, counts.5kb$Start), ] 
 head(counts.5kb.sorted)
               Chr Start   End Coverage
@@ -383,11 +471,12 @@ head(counts.5kb.sorted)
 36  EcoliDH10B.fa 15000 20000     1129
 290 EcoliDH10B.fa 20000 25000     1392
 291 EcoliDH10B.fa 25000 30000     1582
+# Plot 
 plot(counts.5kb.sorted$Coverage)
 ```
 
 
-#### 3. Identify low-coverage regions of an alignment
+### 3. Identify low-coverage regions of an alignment
 
 Often some regions of the genome are low coverage only (or even without any aligned reads) consequently we cannot tell whether polymorphisms
 exist in these regions. We want to identify such regions and find out whether they overlap with genes.
