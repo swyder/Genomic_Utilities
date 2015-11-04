@@ -85,10 +85,17 @@ Install [VirtualBox](www.virtualbox.org) and import the provided Virtual Machine
 
 ### Data
 
-Download the data. It is from a resequencing project of the *E.coli* DH10B strain and contains genome sequence, gene annotation (in gff format) and repeat annotation (in bed format).
+Download the data for the exercises. It is from a resequencing project of the *E.coli* DH10B strain and contains the sequencing reads mapped to the genome (in BAM format), the reference genome sequence as well as gene annotation (in GFF format) and repeat annotation (in BED format).
 
 ```
 wget 
+unzip 
+```
+
+We make a link with a simpler name to save some typing.
+
+```
+ln -s MiSeq_Ecoli_DH10B_110721_PF_subsample.bam MiSeq_DH10B.bam
 ```
 
 
@@ -210,6 +217,8 @@ Specific problems like finding which SNPs overlap coding sequences, or counting 
   
 bedtools allows one to intersect, merge, count, complement, annotate and shuffle genomic ranges from multiple files in widely used file formats suchs as BAM, BED, GFF/GTF, VCF. 
 
+Feature files must be tab-delimited. Gzipped BED, GFF and VCF files are autodetected.
+
 You can get help by typing `bedtools` or from the excellent [online documentation ](http://bedtools.readthedocs.org/en/latest/) with many examples, tutorials etc.
 
 
@@ -285,8 +294,6 @@ The bedtools sub-commands include:
 
 #### Some bedtools examples
 
-Feature files must be tab-delimited. Gzipped BED, GFF and VCF files are autodetected.
-
 - The `intersect` command reports all overlapping features between 2 genomic ranges (by default 1bp):  
 ```
 bedtools intersect -a Repeats_frep.bed -b EcoliDH10B_exons.gff
@@ -331,24 +338,24 @@ bedtools merge -i Repeats_frep_sorted.bed
 
 - Calculate the GC content of each exon. How many E.coli exons have a GC-content of at least 60% ?  
 ```
-bedtools nuc -fi URPP_Tutorials/EcoliDB10/EcoliDH10B.fa -bed EcoliDH10B_exons.gff | cut -f 1-5,10-18 | awk '$7 >= 0.60 {print}' | wc -l
+bedtools nuc -fi EcoliDH10B.fa -bed EcoliDH10B_exons.gff | cut -f 1-5,10-18 | awk '$7 >= 0.60 {print}' | wc -l
 76
 ```
 
 #### Tricks
 
-- All `bedtools` commands can read from stdin and write to stdout.
+- All `bedtools` commands can read from stdin (use `-`) and write to stdout.
 
 - If you work with spliced BAM alignments (e.g. RNA-seq reads) use the `-split` option, otherwise `intersect`, `coverage` & `genomecov` will also count the intron portion of a read. 
 
 ### Coordinate systems 
 
+"If it doesn't have off-by-one errors, it isn't bioinformatics" Thomas Down
+
 Note that some formats are 0-based while others are 1-based which can lead to errors:
 
 0-based: BED BAM  
 1-based: VCF GFF  
-
-"If it doesn't have off-by-one errors, it isn't bioinformatics" Thomas Down
 
 See [explanation on Biostars](https://www.biostars.org/p/84686)
 
@@ -404,13 +411,14 @@ with too few reads to call SNPs with confidence. Her we want to know for a examp
 
 ### samtools
 
+
 1. Make an index of the example BAM file  
 ```
-samtools index MiSeq_Ecoli_DH10B_110721_PF_subsample.bam
+samtools index MiSeq_DH10B.bam
 ```
 2. Check from header the number of chromosomes and their length  
 ```
-samtools view -H MiSeq_Ecoli_DH10B_110721_PF_subsample.bam
+samtools view -H MiSeq_DH10B.bam
 @HD	VN:1.3	SO:coordinate
 @PG	ID:Illumina.SecondaryAnalysis.SortedToBamConverter
 @SQ	SN:EcoliDH10B.fa	LN:4686137	M5:28d8562f2f99c047d792346835b20031
@@ -418,21 +426,21 @@ samtools view -H MiSeq_Ecoli_DH10B_110721_PF_subsample.bam
 ```
 3. View the BAM file and check where in the genome the read _5:1:8:11124:15157 maps to  
 ```
-samtools view MiSeq_Ecoli_DH10B_110721_PF_subsample.bam | grep "_5:1:8:11124:15157"
+samtools view MiSeq_DH10B.bam | grep "_5:1:8:11124:15157"
 _5:1:8:11124:15157	99	EcoliDH10B.fa	11646	254	125M1D25M	=	11879	383	AGGAAGTTTCAGCGCCAGATCGTTGGTTTCGTTACGCGGCATTGCAATGGCGCCGAGGAGTTTATGGTCGTTTGCCTGCGCCGTGCAGCACAGCATCAGGCTAATCGCCAGGCTGGCGGAAATCGCAAAACGGATTTCATACGGAATCTC	??@BD?D?<FHHHIIGG>CCGG<BCF)CFHI@D;GD@@6;AHHHHCH377;9933=88&+9ACC:::++)058834:41599B9@<?:A<?C9?CACC>:98:4+++(525(++29?B5.59(:2(25<C(922&&44:43(88<08>44	RG:Z:_5_1	BC:Z:1	XD:Z:125^T$A15A3T4	SM:i:773	NM:i:4	AS:i:1163
 _5:1:8:11124:15157	147	EcoliDH10B.fa	11879	254	150M	=	11646	-383	TATCATTTTTTTAGGAGTACGACTGTGCTTGGGTTTAATTCTATAAAAAAATAAAGTTGTTGCAAATTTTCCGTGTTCAGCTGCCATATCGCGAAATTTCTGCGCAAAAGCACAAAAAATTTTTGCATCTCCCCCTTGATGACGTGGTTT	+(+((&&(:(:+(+((8(+)+++(+(+(((((+(34((::4((()&((+((:>(+((((((++((((&(*&&(((4(+((8(?C@83,23;5.(6@>CDEDA4C4@7=F@8('69/<?8?B9?9?*?1))))2+++2,+2++=1FDB8:+	RG:Z:_5_1	BC:Z:1	XD:Z:70GAC2G3T6GA2G3T6CA1A2A5G2T1G2GC2AG1CAT1CA2AA4TTG1A3	SM:i:390	NM:i:31	AS:i:1163
 ```
-1. Extract all reads mapped to positions 99-110 (Can also be used to generate a BAM per chromosome)  
+4. Extract all reads mapped to positions 99-110 (Can also be used to generate a BAM per chromosome)  
 ```
-samtools view URPP_Tutorials/EcoliDB10/MiSeq_Ecoli_DH10B_110721_PF_subsample.bam EcoliDH10B.fa:99-110
+samtools view MiSeq_DH10B.bam EcoliDH10B.fa:99-110
 ```
-1. Make an index of a reference fasta file  
+5. Make an index of a reference fasta file  
 ```
 samtools faidx EcoliDH10B.fa
 ```  
-2. Extract nucleotide positions 99-110 from the reference genome  
+6. Extract nucleotide positions 99-110 from the reference genome  
 ```
-samtools faidx URPP_Tutorials/EcoliDB10/EcoliDH10B.fa EcoliDH10B.fa:99-110
+samtools faidx EcoliDH10B.fa EcoliDH10B.fa:99-110
 >EcoliDH10B.fa:99-110
 ATTAAAATTTTA
 ```
@@ -446,11 +454,11 @@ it is used for many applications such as looking for regions under selection (Fs
 1. Define 5kb windows on genome  
 ```
 more EcoliDH10B.fa.fai | cut -f1-2 > Chr_Length
-bedtools makewindows -g Chr_Length -w 5000  > SlidingWindows.bed
+bedtools makewindows -g Chr_Length -w 5000  > SlidingWindows5kb.bed
 ```
 2. Count number of reads per window  
 ```
-bedtools multicov -bams MiSeq_Ecoli_DH10B_110721_PF_subsample.bam -bed SlidingWindows.bed > Counts_SlidingWin5kb
+bedtools multicov -bams MiSeq_DH10B.bam -bed SlidingWindows5kb.bed > Counts_SlidingWin5kb
 ```
 3. Plot the coverage across the genome  
 ```
@@ -462,6 +470,7 @@ colnames(counts.5kb) <- c("Chr", "Start", "End", "Coverage")
 5. Plot the metric/statistic across the genome  
 ```
 # We have to sort the file according to the start position
+# Your coverage values are approx. 1/10 as you are working with a downsampled BAM file
 counts.5kb.sorted <- counts.5kb[order(decreasing=F, counts.5kb$Start), ] 
 head(counts.5kb.sorted)
               Chr Start   End Coverage
@@ -485,26 +494,26 @@ complement, and shuffle genomic intervals from multiple files in widely-used gen
 find the documentation under http://bedtools.readthedocs.org/en/latest/index.html
 
 
-Use `MiSeq_Ecoli_DH10B_110721_PF_subsample.bam` from the first exercise.  
+Use `MiSeq_DH10B.bam` from the first exercise.  
 
-- Try to find out how many nucleotides in the *E. coli* genome do not reach a minimal read coverage of 5, 10 or 20 reads (Hint: Use samtools 
-depth, direct the output into a file and then use awk or R to process the file)
+- Try to find out how many nucleotides in the *E. coli* genome do not reach a minimal read coverage of 5, 10 or 20 reads (Hint: Use `samtools 
+depth`)
 
 ```
-samtools depth -q 20 MiSeq_Ecoli_DH10B_110721_PF_subsample.bam | awk '$3<5 {print}' | wc -l
+samtools depth -q 20 MiSeq_DH10B.bam | awk '$3<5 {print}' | wc -l
 8206
 
-samtools depth -q 20 MiSeq_Ecoli_DH10B_110721_PF_subsample.bam  | awk '$3<10 {print}' | wc -l
+samtools depth -q 20 MiSeq_DH10B.bam  | awk '$3<10 {print}' | wc -l
 15328
 
-samtools depth -q 20 MiSeq_Ecoli_DH10B_110721_PF_subsample.bam  | awk '$3<20 {print}' | wc -l
+samtools depth -q 20 MiSeq_DH10B.bam  | awk '$3<20 {print}' | wc -l
 44441
 ```
 
 or the same can be done using `bedtools genomecov` or by parsing the output of `samtools stats` or using R:
 
 ```
-samtools depth -q 20 MiSeq_Ecoli_DH10B_110721_PF_subsample.bam  | cut -f 2-3 > genome coverage
+samtools depth -q 20 MiSeq_DH10B.bam  | cut -f 2-3 > genome coverage
 
 Rscript Make_Cov_Histogram.R 
 [1] "minimum, lower-hinge, median, upper-hinge, maximum"
@@ -527,10 +536,10 @@ print(paste("Nr of bases with Coverage < 10:", length(which(f<10))))
 hist(f)
 ```
 
-- We now counted individual nucleotides but actually we would like to know whether there are some regions with low coverage (Hint: use mergeBed from bedtools)
+- We now counted individual nucleotides but actually we would like to know whether there are some regions with low coverage (Hint: use `bedtools merge`)
 
 ```
-samtools depth MiSeq_Ecoli_DH10B_110721_PF_subsample.bam | awk 'BEGIN{OFS="\t"} $3<10 {print $1,$2-1,$2}' | bedtools merge -i - | head
+samtools depth MiSeq_DH10B.bam | awk 'BEGIN{OFS="\t"} $3<10 {print $1,$2-1,$2}' | bedtools merge -i - | head
 EcoliDH10B.fa   0       17
 EcoliDH10B.fa   15618   15749
 EcoliDH10B.fa   16379   16496
@@ -540,14 +549,14 @@ EcoliDH10B.fa   19981   20114
 - Are there any regions with unexpected high coverage? As mapping problems are likely (due to repetitive regions) they are often excluded from the analysis.
 
 ```
-samtools depth -q 20 MiSeq_Ecoli_DH10B_110721_PF_subsample.bam  | awk 'BEGIN {OFS="\t"} $3>57 {print}' > positions_CoverageOverMean2SD
+samtools depth -q 20 MiSeq_DH10B.bam  | awk 'BEGIN {OFS="\t"} $3>57 {print}' > positions_CoverageOverMean2SD
 ```
 
 - Do some low coverage nucleotides overlap with annotated genes? (Hint: use the command intersect from bedtools)
 
 ```
 # Extract positions with coverage < 5
-samtools depth -q 20 MiSeq_Ecoli_DH10B_110721_PF_subsample.bam  | awk 'BEGIN {OFS="\t"} $3<5 {print $1,$2,$2}' > positions_CoverageBelow5
+samtools depth -q 20 MiSeq_DH10B.bam  | awk 'BEGIN {OFS="\t"} $3<5 {print $1,$2,$2}' > positions_CoverageBelow5
 # Extract exon positions from gff file
 awk 'BEGIN {OFS="\t"} $3=="CDS" || $3=="exon" {print}' EcoliDH10B.gff > EcoliDH10B_exons.gff
 # Find overlaps
