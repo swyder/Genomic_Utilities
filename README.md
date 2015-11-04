@@ -83,20 +83,6 @@ Alternatively install [VirtualBox](www.virtualbox.org) and import the provided V
 Install [VirtualBox](www.virtualbox.org) and import the provided Virtual Machine containing Ubuntu.
 
 
-### Data
-
-Download the data for the exercises. It is from a resequencing project of the *E.coli* DH10B strain and contains the sequencing reads mapped to the genome (in BAM format), the reference genome sequence as well as gene annotation (in GFF format) and repeat annotation (in BED format).
-
-```
-wget 
-unzip 
-```
-
-We make a link with a simpler name to save some typing.
-
-```
-ln -s MiSeq_Ecoli_DH10B_110721_PF_subsample.bam MiSeq_DH10B.bam
-```
 
 
 ## SAM/BAM files
@@ -361,6 +347,22 @@ See [explanation on Biostars](https://www.biostars.org/p/84686)
 
 
 ## Exercises
+
+
+### Data
+
+Download the data for the exercises. It is from a resequencing project of the *E.coli* DH10B strain and contains the sequencing reads mapped to the genome (in BAM format), the reference genome sequence as well as gene annotation (in GFF format) and repeat annotation (in BED format).
+
+```
+wget https://github.com/milchmolch/Genomic_Utilities/blob/master/DATA/Data_SW.zip?raw=true
+unzip Data_SW.zip\?raw\=true
+```
+
+We make a link with a simpler name to save some typing.
+
+```
+ln -s MiSeq_Ecoli_DH10B_110721_PF_subsample.bam MiSeq_DH10B.bam
+```
 
 
 ### 1. samtools
