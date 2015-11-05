@@ -369,10 +369,11 @@ ln -s MiSeq_Ecoli_DH10B_110721_PF_subsample.bam MiSeq_DH10B.bam
 
 1. Make an index of the example BAM file  
 2. Check from header the number of chromosomes and their length  
-3. View the BAM file and check where in the genome the read _5:1:8:11124:15157 maps to  
+3. View the BAM file and check where in the genome the read _5:1:2:19260:17009 maps to 
 4. Extract all reads mapped to positions 99-110 (Can also be used to generate a BAM per chromosome)  
-5. Make an index of the reference fasta file   
-6. Extract nucleotide positions 99-110 from the reference genome  
+5. Extract unmapped reads from the BAM file (Hint: check `samtools view` and [SAM/BAM flags explanation](https://broadinstitute.github.io/picard/explain-flags.html))
+6. Make an index of the reference fasta file   
+7. Extract nucleotide positions 99-110 from the reference genome  
 
 
 
@@ -426,21 +427,24 @@ samtools view -H MiSeq_DH10B.bam
 @SQ	SN:EcoliDH10B.fa	LN:4686137	M5:28d8562f2f99c047d792346835b20031
 @RG	ID:_5_1	PL:ILLUMINA	SM:DH10B_Sample1
 ```
-3. View the BAM file and check where in the genome the read _5:1:8:11124:15157 maps to  
+3. View the BAM file and check where in the genome the read _5:1:2:19260:17009 maps to  
 ```
-samtools view MiSeq_DH10B.bam | grep "_5:1:8:11124:15157"
-_5:1:8:11124:15157	99	EcoliDH10B.fa	11646	254	125M1D25M	=	11879	383	AGGAAGTTTCAGCGCCAGATCGTTGGTTTCGTTACGCGGCATTGCAATGGCGCCGAGGAGTTTATGGTCGTTTGCCTGCGCCGTGCAGCACAGCATCAGGCTAATCGCCAGGCTGGCGGAAATCGCAAAACGGATTTCATACGGAATCTC	??@BD?D?<FHHHIIGG>CCGG<BCF)CFHI@D;GD@@6;AHHHHCH377;9933=88&+9ACC:::++)058834:41599B9@<?:A<?C9?CACC>:98:4+++(525(++29?B5.59(:2(25<C(922&&44:43(88<08>44	RG:Z:_5_1	BC:Z:1	XD:Z:125^T$A15A3T4	SM:i:773	NM:i:4	AS:i:1163
-_5:1:8:11124:15157	147	EcoliDH10B.fa	11879	254	150M	=	11646	-383	TATCATTTTTTTAGGAGTACGACTGTGCTTGGGTTTAATTCTATAAAAAAATAAAGTTGTTGCAAATTTTCCGTGTTCAGCTGCCATATCGCGAAATTTCTGCGCAAAAGCACAAAAAATTTTTGCATCTCCCCCTTGATGACGTGGTTT	+(+((&&(:(:+(+((8(+)+++(+(+(((((+(34((::4((()&((+((:>(+((((((++((((&(*&&(((4(+((8(?C@83,23;5.(6@>CDEDA4C4@7=F@8('69/<?8?B9?9?*?1))))2+++2,+2++=1FDB8:+	RG:Z:_5_1	BC:Z:1	XD:Z:70GAC2G3T6GA2G3T6CA1A2A5G2T1G2GC2AG1CAT1CA2AA4TTG1A3	SM:i:390	NM:i:31	AS:i:1163
+samtools view MiSeq_DH10B.bam | grep "_5:1:2:19260:17009"
+_5:1:2:19260:17009	163	EcoliDH10B.fa	723	254	150M	=	912	339	GTCGATCGCCATTATGGCCGGCGTATTAGAAGCGCGCGGTCACAACGTTACTGTTATCGATCCGGTCGAAAAACTGCTGGCAGTGGGGCATTACCTCGAATCTACCGTCGATATTGCTGAGTCCACCCGCCGTATTGCGGCAAGCCGCAT	C@CFFFFFHHHHHJJJJJIJJIIHIJIICHIDHIIIEHEACBDDDDD<?CBDDEDDECDDDDDDDDDB@DBDDBCCCDDDDBBCCCDDBDDDD@CCDBDDDDCDDDDB@<BDDDECCACCBDDDCCDDDDDD<<BDD:9<@>BB?@>@3>	RG:Z:_5_1	BC:Z:1	XD:Z:150	SM:i:833	NM:i:0	AS:i:1666
+_5:1:2:19260:17009	83	EcoliDH10B.fa	912	254	150M	=	723	-339	CGGTAATGAAAAAGGCGAACTGGTGGTGCTTGGACGCAACGGTTCCGACTACTCTGCTGCGGTGCTGGCTGCCTGTTTACGCGCCGATTGTTGCGAGATTTGGACGGACGTTGACGGGGTCTATACCTGCGACCCGCGTCAGGTGCCCGA	>CCCDDDDDDDDDDDDCA>BBDBDBDDBDCDBB@DDDBBDDBB@B@DBDDDCDDDDDDDDBDDDDDDDDDDDDDDDDDDDCDDDDDCDDDDDDDDDDDDDDDDBDDBACEDDFFFHHJJJIHDC8IJJIIIGJJJIIGHHHHFFFFFCCC	RG:Z:_5_1	BC:Z:1	XD:Z:150	SM:i:833	NM:i:0	AS:i:1666
 ```
 4. Extract all reads mapped to positions 99-110 (Can also be used to generate a BAM per chromosome)  
 ```
 samtools view MiSeq_DH10B.bam EcoliDH10B.fa:99-110
 ```
-5. Make an index of a reference fasta file  
+5. Extract unmapped reads from the BAM file (Hint: check `samtools view` and [SAM/BAM flags explanation](https://broadinstitute.github.io/picard/explain-flags.html))
+```
+```
+6. Make an index of a reference fasta file  
 ```
 samtools faidx EcoliDH10B.fa
 ```  
-6. Extract nucleotide positions 99-110 from the reference genome  
+7. Extract nucleotide positions 99-110 from the reference genome  
 ```
 samtools faidx EcoliDH10B.fa EcoliDH10B.fa:99-110
 >EcoliDH10B.fa:99-110
