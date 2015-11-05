@@ -355,7 +355,7 @@ Download the data for the exercises. It is from a resequencing project of the *E
 
 ```
 wget https://github.com/milchmolch/Genomic_Utilities/blob/master/DATA/Data_SW.zip?raw=true
-unzip Data_SW.zip\?raw\=true
+unzip "Data_SW.zip?raw=true"
 ```
 
 We make a link with a simpler name to save some typing.
@@ -371,7 +371,7 @@ ln -s MiSeq_Ecoli_DH10B_110721_PF_subsample.bam MiSeq_DH10B.bam
 2. Check from header the number of chromosomes and their length  
 3. View the BAM file and check where in the genome the read _5:1:2:19260:17009 maps to 
 4. Extract all reads mapped to positions 99-110 (Can also be used to generate a BAM per chromosome)  
-5. Extract unmapped reads from the BAM file (Hint: check `samtools view` and [SAM/BAM flags explanation](https://broadinstitute.github.io/picard/explain-flags.html))
+5. Extract the reads from the BAM file where the mate is unmapped (Hint: check `samtools view` and [SAM/BAM flags explanation](https://broadinstitute.github.io/picard/explain-flags.html))
 6. Make an index of the reference fasta file   
 7. Extract nucleotide positions 99-110 from the reference genome  
 
@@ -437,14 +437,15 @@ _5:1:2:19260:17009	83	EcoliDH10B.fa	912	254	150M	=	723	-339	CGGTAATGAAAAAGGCGAAC
 ```
 samtools view MiSeq_DH10B.bam EcoliDH10B.fa:99-110
 ```
-5. Extract unmapped reads from the BAM file (Hint: check `samtools view` and [SAM/BAM flags explanation](https://broadinstitute.github.io/picard/explain-flags.html))
+5. Extract the reads from the BAM file where the mate is unmapped (Hint: check `samtools view` and [SAM/BAM flags explanation](https://broadinstitute.github.io/picard/explain-flags.html))
 ```
+samtools view -f 8 MiSeq_DH10B.bam
 ```
 6. Make an index of a reference fasta file  
 ```
 samtools faidx EcoliDH10B.fa
 ```  
-7. Extract nucleotide positions 99-110 from the reference genome  
+7. Extract nucleotide positions 99-110 from the reference genome    
 ```
 samtools faidx EcoliDH10B.fa EcoliDH10B.fa:99-110
 >EcoliDH10B.fa:99-110
