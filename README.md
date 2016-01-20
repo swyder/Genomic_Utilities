@@ -28,9 +28,9 @@ Never trust software blindly - Do sanity checks often!
 2. Picard  
 **Genomic Intervals (bed, gtf, gff)**  
 3. bedtools  
-**FASTA/FASTQ**   
-4. seqtk
-**Variants (vcf)**  
+**FASTA/FASTQ**     
+4. seqtk  
+**Variants (vcf)**    
 5. vcftools  
 6. bcftools  
 7. Picard  
