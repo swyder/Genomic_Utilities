@@ -36,11 +36,11 @@ Never trust software blindly - Do sanity checks often!
 7. Picard  
   
   
-Chapters 1-3 Stefan  
+Chapters 1-3 Stefan (see below) 
 Chapters 4-6 Heidi [Presentation](URPP_Tutorial_NGStools_HL.pdf) | [Exercises](Exercises_NGStools_Tutorial_HL.pdf) | [Data](NGStools_HL.zip)
 
 
-##Installation
+## Installation
 
 
 ### Linux
